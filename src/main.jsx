@@ -3,8 +3,8 @@ import React from "react";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./componentes/Layout";
-import NuevoCliente from "./componentes/pages/NuevoCliente";
-import {Index, loader as clientesLouder}  from "./componentes/pages/Index";
+import NuevoCliente, {action as actionForm} from "./pages/NuevoCliente";
+import {Index, loader as clientesLouder}  from "./pages/Index";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +19,7 @@ const router = createBrowserRouter([
       {
         path: "/clientes/nuevo",
         element: <NuevoCliente />,
+        action: actionForm
       },
     ],
   },
