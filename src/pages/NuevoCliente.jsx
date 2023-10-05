@@ -4,17 +4,17 @@ import Error from "../componentes/Error";
 import { agregarCliente } from "../Data/clientes";
 
 export async function action({request}) {
-  const formData = await request.formData()
+  const formData = await request.formData();
 
-  const datos = Object.fromEntries(formData)
+  const datos = Object.fromEntries(formData);
 
-  const email = formData.get('email')
+  const email = formData.get("email");
 
   //Validación
-  const errores= []
-  
-  if (Object.values(datos).includes('')) {
-    errores.push('todos los campos son obligatorios')
+  const errores = [];
+
+  if (Object.values(datos).includes("")) {
+    errores.push("todos los campos son obligatorios");
   }
 
   let regex = new RegExp(
@@ -22,19 +22,17 @@ export async function action({request}) {
   );
 
   if (!regex.test(email)) {
-    errores.push('El email no es valido')
-  }
-
-  if (Object.keys(errores).length) {
-    return errores
+    errores.push("El email no es valido");
   }
 
   //Retornar datos sin errores
+  if (Object.keys(errores).length) {
+    return errores;
+  }
 
+//Agregar Cliente
   await agregarCliente(datos);
-
-
-return redirect('/')
+  return redirect("/");
 }
 
 const NuevoCliente = () => {

@@ -1,4 +1,7 @@
-import { obtenerCliente } from "../Data/clientes"
+import { Form, useActionData, useLoaderData, useNavigate, redirect } from "react-router-dom"
+import { obtenerCliente, actualizarCliente } from "../Data/clientes"
+import Formulario from "../componentes/Formulario"
+import Error from "../componentes/Error"
 
 
 export async function loader({params}) {
@@ -8,21 +11,79 @@ export async function loader({params}) {
             status: 404,
             statusText: 'No hay resultados'
         })
-    }
-    
-    console.log(cliente)
-
+  }
+  
     return cliente
 }
 
+export async function action({ request, params }) {
+  const formData = await request.formData();
+  const datos = Object.fromEntries(formData);
+  const email = formData.get("email");
+
+  //Validación
+  const errores = [];
+  if (Object.values(datos).includes('')) {
+    errores.push("todos los campos son obligatorios");
+  }
+
+  let regex = new RegExp(
+    "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])"
+  );
+
+  if (!regex.test(email)) {
+    errores.push("El email no es valido");
+  }
+
+  //Retornar datos sin errores
+  if (Object.keys(errores).length) {
+    return errores;
+  }
+
+
+  //Actualizar cliente
+  await actualizarCliente(params.clienteId, datos);
+  return redirect("/");
+}
 
 
 const EditarCliente = () => {
+  const navigate = useNavigate();
+  const cliente = useLoaderData();
+  const errores = useActionData();
   return (
-    <div>
-      Editar
-    </div>
-  )
+    <>
+      <h1 className="font-black text-4xl text-blue-900">Editar Cliente</h1>
+      <p className="mt-3">
+        A continuación podrás modificar los datos de un cliente
+      </p>
+
+      <div className="flex justify-end">
+        <button
+          onClick={() => navigate(-1)}
+          className="bg-blue-800 text-white font-blod uppercase py-1 px-3"
+        >
+          Regresar
+        </button>
+      </div>
+
+      <div className="bg-white shadow rounded-md md:w-3/4 mx-auto px-5 py-10">
+         {errores?.length &&
+          errores.map((error, i) => <Error key={i}>{error}</Error>)}
+        <Form method="post">
+          <Formulario          
+          cliente={cliente}
+          />
+
+          <input
+            type="submit"
+            className="mt-5 w-full bg-blue-800 p-3  uppercase font-bold text-white"
+            value="Guardar Cambios"
+          />
+        </Form>
+      </div>
+    </>
+  );
 }
 
 export default EditarCliente
